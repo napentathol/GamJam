@@ -68,6 +68,7 @@ public class GenericActorRenderable implements ActorRenderable {
                        final float delta, final SpriteBatch batch)
     {
         actorsToRender.stream().forEach(
+//              a -> batch.draw(image, a.getX(), a.getY())
             a -> batch.draw(image,
                 a.getX() + offx - halfWidth,
                 a.getY() + offy - halfHeight,
@@ -80,6 +81,7 @@ public class GenericActorRenderable implements ActorRenderable {
                 (float) Math.toDegrees(a.getRotation()) + getOffsetRotation(),
                 0, 0,
                 image.getWidth(), image.getHeight(),
+                //1, 1,
                 false, false
             )
         );

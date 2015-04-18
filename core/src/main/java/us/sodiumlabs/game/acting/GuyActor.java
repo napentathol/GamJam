@@ -1,5 +1,6 @@
 package us.sodiumlabs.game.acting;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import us.sodiumlabs.game.input.GameInputProvider;
 
@@ -10,7 +11,7 @@ public class GuyActor
 
     private static final float VEL = 100f;
 
-    private static final float ANG_VEL = 10f;
+    private static final float RADIUS = 32f;
 
     private GameInputProvider inputProvider;
 
@@ -25,7 +26,7 @@ public class GuyActor
 
     private static Body createGuyBody(final World world) {
         final CircleShape circleShape = new CircleShape();
-        circleShape.setRadius(64f);
+        circleShape.setRadius(RADIUS);
 
         final FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = circleShape;
@@ -43,23 +44,32 @@ public class GuyActor
 
     @Override
     public void act(float delta) {
-        // Move the body.
+        int xComp = 0, yComp = 0;
+
+        // Move on the x axis.
         if (inputProvider.isLeft()) {
-            getBody().setAngularVelocity(ANG_VEL);
+            xComp = -1;
         } else if (inputProvider.isRight()) {
-            getBody().setAngularVelocity(-ANG_VEL);
-        } else {
-            getBody().setAngularVelocity(0);
+            xComp = 1;
         }
 
-        // Rotate the body.
+        // Move on the y axis.
         if (inputProvider.isForward()) {
-            applyDirectionalVelocity(-VEL);
+            yComp = -1;
         } else if (inputProvider.isBack()) {
-            applyDirectionalVelocity(VEL);
-        } else {
-            applyDirectionalVelocity(0);
+            yComp = 1;
         }
+        getBody().setLinearVelocity((new Vector2(xComp, yComp)).nor().scl(VEL));
+
+        final Vector2 face = inputProvider.getCameraAdjMouseVector()
+                .add(getX(), getY());
+
+        getBody().setTransform( getBody().getPosition(),
+                 (float) Math.atan2(
+                        -face.y,
+                         face.x ));
+
+        System.out.println("ACTOR: " + getX() + "\t\tCALC: " + face.x + "\t\t");
     }
 
     @Override

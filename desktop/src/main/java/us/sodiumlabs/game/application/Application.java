@@ -18,6 +18,13 @@ public class Application
     }
 
     @Override
+    public void resize(final int width, final int height) {
+        super.resize(width, height);
+
+        display.resize(width, height);
+    }
+
+    @Override
     public void render() {
         super.render();
 

@@ -4,16 +4,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import javafx.scene.Camera;
 import us.sodiumlabs.game.acting.Actor;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class GenericSceneRenderer implements SceneRenderer{
+public class GenericSceneRenderer
+        implements SceneRenderer
+{
 // ------------------------------ FIELDS ------------------------------
 
     private final List<Renderable> renderables = new LinkedList<>();
+
+    private final Viewport viewport;
 
     private Color clearColor = new Color(0.375f, 0.375f, 0.375f, 1);
 
@@ -23,13 +28,10 @@ public class GenericSceneRenderer implements SceneRenderer{
 
     private float x, y;
 
-    private final float width, height;
-
     private static final float BORDER = 150;
 
-    public GenericSceneRenderer(final float width, final float height) {
-        this.width = width;
-        this.height = height;
+    public GenericSceneRenderer(final Viewport viewport) {
+        this.viewport = viewport;
     }
 
 // --------------------- GETTER / SETTER METHODS ---------------------
@@ -48,14 +50,34 @@ public class GenericSceneRenderer implements SceneRenderer{
 
     @Override
     public void render(final float delta, final SpriteBatch batch) {
-        if(actor.getX() + x < BORDER) { x = BORDER - actor.getX(); }
-        else if(actor.getX() + x > width - BORDER) { x = width - BORDER - actor.getX(); }
+        viewport.getCamera().update();
 
-        if(actor.getY() + y < BORDER) { y = BORDER - actor.getY(); }
-        else if(actor.getY() + y > height - BORDER) { y = height - BORDER - actor.getY(); }
+        // Check Left Bound
+        if(actor.getX() - x >  viewport.getScreenWidth()/2 - BORDER ) {
+            x = actor.getX() + BORDER - viewport.getScreenWidth()/2;
+        }
 
-        batch.getProjectionMatrix().setTranslation( -x, -y, 0f);
+        // Check Right Bound
+        else if (actor.getX() - x < BORDER - viewport.getScreenWidth()/2) {
+            x = actor.getX() - BORDER + viewport.getScreenWidth()/2;
+        }
 
+        // Check Upper Bound
+        if(actor.getY() - y > viewport.getScreenHeight()/2 - BORDER) {
+            y = actor.getY() + BORDER - viewport.getScreenHeight()/2;
+        }
+
+        // Check Lower Bound
+        else if (actor.getY() - y < BORDER - viewport.getScreenHeight()/2) {
+            y = actor.getY() - BORDER + viewport.getScreenHeight()/2;
+        }
+
+        // Update camera
+        viewport.getCamera().position.x = x;
+        viewport.getCamera().position.y = y;
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+
+        // Render with 0 offset.
         render(0, 0, delta, batch);
     }
 
@@ -74,6 +96,8 @@ public class GenericSceneRenderer implements SceneRenderer{
     @Override
     public void create() {
         batch = new SpriteBatch();
+
+        batch.setProjectionMatrix(viewport.getCamera().combined);
         renderables.stream().forEach(Renderable::create);
     }
 

@@ -1,9 +1,10 @@
 package us.sodiumlabs.game.utils;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import us.sodiumlabs.game.acting.Actor;
 import us.sodiumlabs.game.rendering.GenericSceneRenderer;
 import us.sodiumlabs.game.rendering.SceneRenderer;
@@ -16,16 +17,20 @@ public abstract class Display
 {
     private List<Actor> actors = new LinkedList<>();
 
-    private SceneRenderer renderer = new GenericSceneRenderer(800, 600);
+    private Viewport viewport = new ExtendViewport(800, 600);
+
+    private SceneRenderer renderer = new GenericSceneRenderer(viewport);
+    //SceneRenderer renderer = new GenericSceneRenderer();
 
     private World world;
 
     private Box2DDebugRenderer debug = new Box2DDebugRenderer();
 
     public void create() {
+        viewport.getCamera().position.set(viewport.getCamera().viewportWidth/2, viewport.getCamera().viewportHeight/2, 0);
+
         world = new World(new Vector2(0,0), true);
         renderer.create();
-
     }
 
     public void render(float delta) {
@@ -42,7 +47,12 @@ public abstract class Display
         // Render the scene.
         renderer.render(delta);
 
-        debug.render(world, (new SpriteBatch()).getProjectionMatrix());
+        // Debug rendering.
+        debug.render(world, viewport.getCamera().combined);
+    }
+
+    public void resize(final int width, final int height) {
+        viewport.update(width, height);
     }
 
     public World getWorld() {
@@ -55,5 +65,9 @@ public abstract class Display
 
     public List<Actor> getActors() {
         return actors;
+    }
+
+    protected Viewport getViewport() {
+        return viewport;
     }
 }

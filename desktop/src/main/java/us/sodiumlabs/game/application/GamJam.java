@@ -15,7 +15,7 @@ public class GamJam
     public void create() {
         super.create();
 
-        final ClientGameInputProvider wasdClientProvider = new ClientGameInputProvider();
+        final ClientGameInputProvider wasdClientProvider = new ClientGameInputProvider(getViewport());
 
         final DelegatingInputAdapter delegatingInputAdapter = new DelegatingInputAdapter();
         delegatingInputAdapter.addInputAdapter(wasdClientProvider);
