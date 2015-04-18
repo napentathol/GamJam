@@ -1,0 +1,57 @@
+buildscript {
+    //Defines the repositories that are required by this script, e.g. android plugin
+    repositories {
+        //maven central repository, needed for the android plugin
+        mavenCentral()
+        //repository for libgdx artifacts
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+    }
+    //
+    dependencies {
+        //Adds the android gradle plugin as a dependency of this buildscript
+        classpath 'com.android.tools.build:gradle:0.9+'
+    }
+}
+
+allprojects {
+    apply plugin: "eclipse"
+    apply plugin: "idea"
+
+    version = "0.0.1"
+    ext {
+        appName = "${rootProject.name}"
+        gdxVersion = "1.5.3"
+    }
+
+    repositories {
+        //Defines all repositories needed for all projects
+        mavenLocal();
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+}
+
+project(":core") {
+    apply plugin: "java"
+
+    dependencies {
+        //Defines dependencies for the :core project, in this example the gdx depdendency
+        compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+}
+
+project(":desktop") {
+    apply plugin: "java"
+
+    dependencies {
+        //Defines dependencies for the :desktop project, adds dependency on the :core project as well as
+        //The gdx lwjgl backend and native dependencies
+        compile project(":core")
+        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        compile "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+}

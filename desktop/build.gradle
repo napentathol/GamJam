@@ -1,0 +1,9 @@
+apply plugin:'application'
+
+sourceCompatibility = 1.8
+
+mainClassName = "us.sodiumlabs.game.DesktopLauncher"
+
+eclipse.project {
+    name = appName + "-desktop"
+}
